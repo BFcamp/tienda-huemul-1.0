@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Huemul — Cuadernos Inteligentes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== BRAND VARIABLES ===== */
+    :root {
+      --cream:        #FAFAF5;
+      --cream-mid:    #F2EDE4;
+      --cream-dark:   #EAE3D8;
+      
+      --green:        #8BCCA4; 
+      --green-mid:    #6EBA90; 
+      --green-title:  #72BE94; 
+      
+      --sage:         #7BA898;
+      --sage-light:   #A8C8BC;
+      --sky:          #B8D0DC;
+      --sky-light:    #D4E6EE;
+      
+      --peach:        #FFE4E9; 
+      --peach-dark:   #FFC4D1; 
+      --peach-deep:   #FFB7C9; 
+      
+      --deer:         #C4956A;
+      --charcoal:     #2A3B32; 
+      --mid:          #5A7468;
+      --green-dark:   #345E45; 
+      
+      --font-title:   'Chewy Caramel', 'Chewy', cursive;
+      --font-nav:     'Fredoka', sans-serif;
+      --font-text:    'Montserrat', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--cream);
+      color: var(--charcoal);
+      font-family: var(--font-text);
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.5;
+    }
+
+    /* ===== ANNOUNCE BAR ===== */
+    .announce {
+      background: var(--green);
+      color: var(--charcoal); 
+      text-align: center;
+      padding: 9px 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .announce span { margin: 0 14px; opacity: 0.4; }
+
+    /* ===== NAVBAR ===== */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--cream);
+      border-bottom: 1.5px solid var(--cream-dark);
+      display: flex; align-items: center;
+      padding: 0 40px;
+      height: 76px; 
+      gap: 32px;
+      transition: height 0.3s ease, padding 0.3s ease; /* Transición suave al achicar */
+    }
+    .nav.scrolled {
+      height: 60px; /* Se achica al hacer scroll */
+      box-shadow: 0 4px 20px rgba(42, 59, 50, 0.05);
+    }
+    .nav-logo {
+      font-family: var(--font-title);
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      color: var(--green-title);
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-deer {
+      width: 34px; height: 34px;
+      background: var(--sky);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      font-family: var(--font-text);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* Transición más suave para el ícono */
+    }
+    .nav.scrolled .logo-deer {
+       transform: scale(1.1); /* Agranda un poquito el ciervito al hacer scroll */
+    }
+    .nav-logo-text {
+      display: flex;
+      /* Transición ampliada a 0.5s y con una curva más elegante */
+      transition: opacity 0.5s ease-in-out, width 0.5s ease-in-out, transform 0.5s ease-in-out;
+      overflow: hidden;
+      transform-origin: left center;
+      /* Fijamos un ancho inicial explícito para que la animación de contracción sea fluida */
+      width: 100px; 
+    }
+    .nav-logo em { color: var(--sage); font-style: normal;}
+    
+    /* Ocultar texto "Huemul" al hacer scroll */
+    .nav.scrolled .nav-logo-text {
+      opacity: 0;
+      width: 0;
+      transform: scaleX(0);
+    }
+
+    .nav-links { display: flex; gap: 4px; list-style: none; flex: 1; height: 100%; align-items: center; justify-content: center; } /* justificado al centro */
+    .nav-links li { position: relative; display: flex; align-items: center; height: 100%; }
+    
+    .nav-links > li > a {
+      font-family: var(--font-nav);
+      font-size: 19px; /* Aumentamos el tamaño de la letra de la barra principal */
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: rgba(42, 59, 50, 0.85);
+      padding: 8px 18px; /* Un poquito más de espacio a los costados para equilibrar el nuevo tamaño */
+      border-radius: 99px;
+      transition: all 0.3s ease;
+      white-space: nowrap; /* ESTO MANTIENE LAS PALABRAS EN UNA LÍNEA */
+      display: inline-flex; 
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-links > li > a:hover { 
+      color: var(--green-dark); 
+      background: rgba(139, 204, 164, 0.25); 
+    }
+    
+    .nav-links .dropdown {
+      position: absolute; top: 100%; left: 50%;
+      background: var(--cream);
+      border: 2px solid var(--cream-dark);
+      border-radius: 16px;
+      min-width: 240px; padding: 12px 0;
+      opacity: 0; pointer-events: none;
+      transform: translateX(-50%) translateY(12px);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 12px 40px rgba(42, 59, 50, 0.08);
+      z-index: 101;
+    }
+    
+    .nav-links .dropdown::before {
+      content: ''; position: absolute;
+      top: -24px; left: 0; right: 0; height: 24px;
+    }
+    
+    .nav-links li:hover .dropdown { 
+      opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(-6px); 
+    }
+    
+    .dropdown a { 
+      display: block; padding: 10px 24px; 
+      font-family: var(--font-nav);
+      font-size: 16px; /* También subimos un poquito el menú desplegable */
+      letter-spacing: 0.02em; font-weight: 500;
+      color: var(--charcoal);
+      transition: all 0.2s ease;
+      white-space: normal; /* Dentro del menú sí pueden bajar a otra línea si es muy largo */
+    }
+    .dropdown a:hover { 
+      background: var(--sky-light); 
+      color: var(--green-dark); 
+      padding-left: 30px; 
+    }
+    
+    .nav-actions { display: flex; gap: 20px; align-items: center; }
+    .nav-icon { font-size: 20px; color: var(--green-title); cursor: pointer; transition: color 0.2s; position: relative; }
+    .nav-icon:hover { color: var(--sage); }
+    .cart-badge {
+      position: absolute; top: -6px; right: -8px;
+      background: var(--peach-deep); color: white;
+      font-size: 9px; width: 16px; height: 16px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600;
+    }
+
+    /* ===== HERO ===== */
+    .hero { position: relative; overflow: hidden; height: 580px; }
+    .hero-slides { display: flex; height: 100%; transition: transform 0.7s cubic-bezier(0.77,0,0.18,1); }
+    
+    .hero-slide {
+      min-width: 100%; position: relative;
+      display: flex; align-items: center; justify-content: center; 
+      text-align: center; 
+      overflow: hidden;
+      
+      background-color: var(--green); 
+      background-size: cover; 
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    
+    .hero-slide:nth-child(1) { background-image: url('https://images.unsplash.com/photo-1586075010923-2dd4570fb338?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'); }
+    .hero-slide:nth-child(2) { background-image: url('https://images.unsplash.com/photo-1517842645767-c639042777db?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'); }
+    .hero-slide:nth-child(3) { background-image: url('https://images.unsplash.com/photo-1544816155-12df9643f363?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'); }
+    
+    .hero-slide::before {
+      content: ''; position: absolute;
+      top: -80px; right: -80px;
+      width: 380px; height: 380px;
+      border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    .hero-blob {
+      position: absolute; bottom: -60px; right: 120px;
+      width: 260px; height: 260px;
+      border-radius: 40% 60% 55% 45% / 60% 45% 55% 40%;
+      background: rgba(255,255,255,0.1); z-index: 1;
+    }
+    .hero-slide::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(42, 59, 50, 0.45);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      color: white; 
+      width: 100%; 
+      padding: 0 72px;
+      animation: fadeUp 0.9s ease both;
+      display: flex;
+      flex-direction: column;
+      align-items: center; 
+    }
+    .hero-text-wrapper {
+      max-width: 650px; 
+      text-align: center; 
+    }
+    .hero-content .btn {
+      margin-top: 10px;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.25em;
+      text-transform: uppercase; 
+      color: rgba(255, 255, 255, 0.9); 
+      margin-bottom: 14px; font-weight: 600;
+    }
+    .hero-title {
+      font-family: var(--font-title);
+      font-size: clamp(40px, 6vw, 68px);
+      line-height: 1.1; margin-bottom: 18px;
+      font-weight: normal;
+    }
+    .hero-title em { font-style: normal; color: var(--peach-deep); }
+    .hero-sub {
+      font-size: 14.5px; 
+      color: rgba(255, 255, 255, 0.95); 
+      margin-bottom: 36px; font-weight: 500; line-height: 1.75;
+    }
+    
+    /* ===== BOTONES ===== */
+    .btn {
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center; 
+      text-align: center;
+      gap: 10px;
+      padding: 13px 32px; 
+      font-size: 12px;
+      font-weight: 600; 
+      letter-spacing: 0.1em;
+      text-transform: uppercase; 
+      transition: all 0.25s;
+      border-radius: 999px;
+      width: fit-content; 
+    }
+    .btn-dark { background: var(--green-dark); color: white; }
+    .btn-dark:hover { background: #274734; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    
+    .btn-green { background: var(--green); color: var(--charcoal); }
+    .btn-green:hover { background: var(--green-mid); color: white; transform: translateY(-1px); }
+    
+    .btn-peach { background: var(--peach); color: white; }
+    .btn-peach:hover { background: var(--peach-dark); transform: translateY(-1px); }
+    
+    .btn-outline { border: 1.5px solid var(--green-mid); color: var(--green-mid); }
+    .btn-outline:hover { background: var(--green-mid); color: white; }
+    
+    .btn-outline-sage { border: 1.5px solid var(--sage); color: var(--sage); }
+    .btn-outline-sage:hover { background: var(--sage); color: white; }
+
+    .hero-nav {
+      position: absolute; bottom: 28px; left: 50%; 
+      transform: translateX(-50%);
+      display: flex; gap: 10px; z-index: 3;
+    }
+    .hero-dot {
+      width: 28px; height: 3px;
+      background: rgba(255, 255, 255, 0.4);
+      cursor: pointer; transition: all 0.3s;
+    }
+    .hero-dot.active { background: white; width: 48px; }
+
+    /* ===== SECCIONES ===== */
+    .section { padding: 80px 40px; }
+    .section-header { text-align: center; margin-bottom: 48px; }
+    .section-eyebrow {
+      font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--sage); font-weight: 600; margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-title);
+      font-size: clamp(32px, 5vw, 50px);
+      line-height: 1.15; color: var(--green-title); 
+      font-weight: normal;
+    }
+    .section-title em { font-style: normal; color: var(--peach-dark); }
+
+    /* ===== CATEGORY GRID ===== */
+    .cat-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; max-width: 1200px; margin: 0 auto;
+    }
+    .cat-card { position: relative; aspect-ratio: 3/4; overflow: hidden; cursor: pointer; border-radius: 20px; }
+    .cat-bg {
+      width: 100%; height: 100%;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cat-card:hover .cat-bg { transform: scale(1.07); }
+    .cat-1 .cat-bg { background: linear-gradient(160deg, var(--sky-light), var(--sky), #7AAABB); }
+    .cat-2 .cat-bg { background: linear-gradient(160deg, var(--sage-light), var(--sage), #5A8878); }
+    .cat-3 .cat-bg { background: linear-gradient(160deg, #F0CDBF, var(--peach), var(--peach-dark)); }
+    .cat-4 .cat-bg { background: linear-gradient(160deg, var(--cream-dark), #C8BCA8, #A09080); }
+    .cat-icon { font-size: 68px; opacity: 0.2; }
+    .cat-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(20,45,32,0.72) 0%, transparent 55%);
+      display: flex; align-items: flex-end; padding: 24px 20px;
+    }
+    .cat-label { color: white; font-family: var(--font-title); font-size: 26px; line-height: 1.2; font-weight: normal; }
+    .cat-label span {
+      display: block; font-family: var(--font-text);
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.8; margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* ===== FEATURE SECTIONS ===== */
+    .feature { display: grid; grid-template-columns: 1fr 1fr; min-height: 480px; max-width: 1400px; margin: 0 auto; }
+    .feature.reverse { direction: rtl; }
+    .feature.reverse > * { direction: ltr; }
+    .feature-img { position: relative; overflow: hidden; }
+    .feature-img-bg {
+      width: 100%; height: 100%; min-height: 480px;
+      transition: transform 0.8s ease;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 100px;
+    }
+    .feat-1 { background: linear-gradient(135deg, var(--sky-light) 0%, var(--sky) 50%, #7AAABB 100%); }
+    .feat-2 { background: linear-gradient(135deg, #C8E8DC 0%, var(--sage) 50%, #6EBA90 100%); }
+    .feat-3 { background: linear-gradient(135deg, #F0CDBF 0%, var(--peach) 50%, var(--peach-dark) 100%); }
+    .feat-4 { background: linear-gradient(135deg, var(--cream-dark) 0%, var(--sage-light) 50%, var(--sage) 100%); }
+    .feature:hover .feature-img-bg { transform: scale(1.04); }
+
+    .feature-body { padding: 64px 60px; display: flex; flex-direction: column; justify-content: center; }
+    .feature-body-light { background: var(--cream); }
+    .feature-body-sky   { background: var(--sky-light); }
+    .feature-body-sage  { background: #EAF2EE; }
+    .feature-body-peach { background: #FDF0EB; }
+
+    .feature-badge {
+      display: inline-block; font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      font-weight: 600; padding: 5px 12px;
+      margin-bottom: 24px; 
+      align-self: flex-start; 
+      border-radius: 4px;
+    }
+    .badge-green { color: var(--green-title); border: 1.5px solid var(--green-title); }
+    .badge-sage  { color: var(--sage); border: 1.5px solid var(--sage); }
+    .badge-peach { color: var(--peach-dark); border: 1.5px solid var(--peach); }
+    .badge-sky   { color: #4A7A8A; border: 1.5px solid var(--sky); }
+
+    .feature-title {
+      font-family: var(--font-title);
+      font-size: clamp(32px, 4.5vw, 48px);
+      line-height: 1.15; margin-bottom: 20px; color: var(--green-title); 
+      font-weight: normal;
+    }
+    .feature-title em { font-style: normal; color: var(--peach-dark); }
+    .feature-title.sky-em em  { color: #4A7A8A; }
+    .feature-title.sage-em em { color: var(--sage); }
+    .feature-desc { color: var(--mid); font-size: 14.5px; line-height: 1.8; margin-bottom: 36px; max-width: 420px; }
+    .feature-desc strong { color: var(--green-title); font-weight: 600; }
+
+    /* ===== CATALOG BANNER ===== */
+    .catalog-banner {
+      margin: 0 40px;
+      background: var(--green);
+      padding: 72px 80px;
+      display: flex; align-items: center; gap: 80px;
+      position: relative; overflow: hidden;
+    }
+    .catalog-banner::before {
+      content: ''; position: absolute;
+      right: -80px; top: -80px;
+      width: 320px; height: 320px;
+      border-radius: 60% 40% 55% 45%;
+      background: rgba(255,255,255,0.25);
+    }
+    .catalog-banner::after {
+      content: ''; position: absolute;
+      left: 40%; bottom: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50% 60% 40% 55%;
+      background: rgba(255,255,255,0.2);
+    }
+    .catalog-text { flex: 1; z-index: 1; text-align: left; }
+    .catalog-text .section-eyebrow { color: var(--charcoal); opacity: 0.6; }
+    .catalog-text .section-title { color: var(--charcoal); }
+    .catalog-text .section-title em { color: #fff; }
+    .catalog-text p { color: rgba(42, 59, 50, 0.85); font-size: 15px; margin-top: 16px; line-height: 1.75; max-width: 480px; font-weight: 500; }
+    .btn-catalog { background: var(--green-dark); color: white; flex-shrink: 0; z-index: 1; margin: 0; }
+    .btn-catalog:hover { background: #274734; transform: translateY(-1px); }
+
+    /* ===== TRUST BADGES ===== */
+    .trust-row {
+      background: var(--cream-mid);
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1.5px solid var(--cream-dark);
+      border-bottom: 1.5px solid var(--cream-dark);
+    }
+    .trust-item { padding: 36px 28px; display: flex; align-items: center; gap: 16px; border-right: 1.5px solid var(--cream-dark); }
+    .trust-item:last-child { border-right: none; }
+    .trust-icon-wrap {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+      font-family: var(--font-text);
+    }
+    .ti-green { background: #E2F5EA; color: var(--green-mid); }
+    .ti-peach { background: #FDE8DF; }
+    .ti-sky   { background: var(--sky-light); }
+    .ti-sage  { background: #E0EEE8; }
+    .trust-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; color: var(--green-title); }
+    .trust-sub { font-size: 12px; color: var(--mid); line-height: 1.45; }
+
+    /* ===== FOOTER ===== */
+    footer { background: var(--charcoal); color: rgba(255,255,255,0.55); padding: 60px 40px 32px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 48px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .footer-brand { font-family: var(--font-title); font-size: 32px; font-weight: normal; color: white; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .footer-logo-circle { width: 38px; height: 38px; background: var(--sky); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-family: var(--font-text); }
+    .footer-brand em { color: var(--green); font-style: normal; }
+    .footer-tagline { font-size: 13px; line-height: 1.75; margin-bottom: 24px; max-width: 280px; }
+    .social-links { display: flex; gap: 12px; }
+    .social-link { width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; border-radius: 50%; }
+    .social-link:hover { border-color: var(--green); color: white; background: rgba(139, 204, 164, 0.2); }
+    .footer-col h4 { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: white; font-weight: 600; margin-bottom: 20px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul a { font-size: 13px; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--green); }
+    .payment-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .payment-chip { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); padding: 5px 11px; font-size: 11px; color: rgba(255,255,255,0.65); font-weight: 500; border-radius: 4px; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; font-size: 12px; }
+    .footer-bottom a:hover { color: var(--green); }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .cat-grid { grid-template-columns: repeat(2, 1fr); }
+      .feature { grid-template-columns: 1fr; }
+      .feature.reverse { direction: ltr; }
+      .feature-img-bg { min-height: 280px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .trust-row { grid-template-columns: 1fr 1fr; }
+      .trust-item:nth-child(2) { border-right: none; }
+      
+      /* Ajustes para tablet/celular grande en la barra */
+      .nav-links > li > a { padding: 8px 12px; font-size: 17px; } /* Lo aumentamos proporcionalmente para tablets */
+      .nav-actions { gap: 12px; }
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      /* Solo mostramos el logo y los iconos en celular, el menú va en hamburguesa (asumo que Empretienda lo hace) */
+      .nav-links { display: none; } 
+      .section { padding: 56px 20px; }
+      .hero-content { padding: 0 32px; }
+      .catalog-banner { margin: 0; flex-direction: column; padding: 48px 28px; gap: 28px; text-align: center; }
+      .catalog-text { text-align: center; }
+      .catalog-text p { margin-left: auto; margin-right: auto; }
+      .btn-catalog { margin: 0 auto; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .trust-row { grid-template-columns: 1fr; }
+      .trust-item { border-right: none; border-bottom: 1.5px solid var(--cream-dark); }
+      .feature-body { padding: 40px 28px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+
+    /* ===== WHATSAPP FAB ===== */
+    .wa-fab {
+      position: fixed; bottom: 28px; right: 28px; z-index: 200;
+      width: 54px; height: 54px; background: #25D366; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: var(--font-text);
+    }
+    .wa-fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.55); }
+  </style>
+</head>
+<body>
+
+  <div class="announce">
+    🤍 Hecho a mano, pensado en vos
+    <span>·</span>
+    📦 Envíos a todo el país
+    <span>·</span>
+    ⏱ Demora 5 a 8 días hábiles
+  </div>
+
+  <nav class="nav" id="navbar">
+    <div class="nav-logo">
+      <div class="logo-deer">🦌</div>
+      <span class="nav-logo-text">Hue<em>mul</em></span>
+    </div>
+    <ul class="nav-links">
+      <li>
+        <a href="#">Productos ▾</a>
+        <div class="dropdown">
+          <a href="#">Cuadernos con Discos</a>
+          <a href="#">Cuadernos con Espiral</a>
+          <a href="#">Libretas</a>
+          <a href="#">Repuestos Inteligentes</a>
+          <a href="#">Agendas 2026</a>
+          <a href="#">Planners</a>
+          <a href="#">Combos</a>
+        </div>
+      </li>
+      <li><a href="#">Por Encargue</a></li>
+      <li><a href="#">En Stock</a></li>
+      <li>
+        <a href="#">Información ▾</a>
+        <div class="dropdown">
+          <a href="#">Cómo comprar</a>
+          <a href="#">Catálogo de diseños</a>
+          <a href="#">Sobre Huemul</a>
+        </div>
+      </li>
+      <li><a href="#">Contacto</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="nav-icon">♡</div>
+      <div class="nav-icon">⊕<span class="cart-badge">0</span></div>
+      <div class="nav-icon">◯</div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-slides" id="heroSlides">
+      
+      <!-- SLIDE 1 -->
+      <div class="hero-slide">
+        <div class="hero-blob"></div>
+        <div class="hero-content">
+          <div class="hero-text-wrapper">
+            <p class="hero-eyebrow">Cuadernos Inteligentes · Sistema de Discos</p>
+            <h1 class="hero-title">Organizá tu vida <em>con estilo</em></h1>
+            <p class="hero-sub">Cuadernos artesanales con sistema de discos. Personalizables, recargables y hechos a mano. Tu cuaderno, tu forma.</p>
+          </div>
+          <a href="#" class="btn btn-dark">Ver Colección →</a>
+        </div>
+      </div>
+      
+      <!-- SLIDE 2 -->
+      <div class="hero-slide">
+        <div class="hero-blob"></div>
+        <div class="hero-content">
+          <div class="hero-text-wrapper">
+            <p class="hero-eyebrow">Agendas 2026 · Nueva Colección</p>
+            <h1 class="hero-title">Tu año, <em>bien organizado</em></h1>
+            <p class="hero-sub">Semanales, diarias y universitarias. Elegí la agenda que se adapte a tu ritmo y personalizá la tapa con tu diseño.</p>
+          </div>
+          <a href="#" class="btn btn-dark">Ver Agendas →</a>
+        </div>
+      </div>
+
+      <!-- SLIDE 3 -->
+      <div class="hero-slide">
+        <div class="hero-blob"></div>
+        <div class="hero-content">
+          <div class="hero-text-wrapper">
+            <p class="hero-eyebrow">Diseños personalizados · Pedidos especiales</p>
+            <h1 class="hero-title">Diseñado <em>para vos</em></h1>
+            <p class="hero-sub">Elegí entre más de 100 diseños o envianos el tuyo. Cada cuaderno es único como quien lo lleva.</p>
+          </div>
+          <a href="#" class="btn btn-dark">Ver Catálogo →</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="hero-nav">
+      <div class="hero-dot active" onclick="goSlide(0)"></div>
+      <div class="hero-dot" onclick="goSlide(1)"></div>
+      <div class="hero-dot" onclick="goSlide(2)"></div>
+    </div>
+  </section>
+
+  <section class="section" style="background: var(--cream-mid);">
+    <div class="section-header">
+      <p class="section-eyebrow">Nuestros productos</p>
+      <h2 class="section-title">Cuadernos &amp; <em>Libretas</em></h2>
+    </div>
+    <div class="cat-grid">
+      <div class="cat-card cat-1">
+        <div class="cat-bg"><span class="cat-icon">📓</span></div>
+        <div class="cat-overlay">
+          <div class="cat-label">Cuadernos con Discos<span>Sistema inteligente</span></div>
+        </div>
+      </div>
+      <div class="cat-card cat-2">
+        <div class="cat-bg"><span class="cat-icon">📔</span></div>
+        <div class="cat-overlay">
+          <div class="cat-label">Cuadernos con Espiral<span>Clásico y práctico</span></div>
+        </div>
+      </div>
+      <div class="cat-card cat-3">
+        <div class="cat-bg"><span class="cat-icon">📒</span></div>
+        <div class="cat-overlay">
+          <div class="cat-label">Libretas<span>Compactas y lindas</span></div>
+        </div>
+      </div>
+      <div class="cat-card cat-4">
+        <div class="cat-bg"><span class="cat-icon">🗂</span></div>
+        <div class="cat-overlay">
+          <div class="cat-label">Ficheros<span>Para organizar todo</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="feature">
+      <div class="feature-img"><div class="feature-img-bg feat-1">📓</div></div>
+      <div class="feature-body feature-body-light">
+        <span class="feature-badge badge-green">Más vendido</span>
+        <h2 class="feature-title">Sistema de <em>Discos Inteligente</em></h2>
+        <p class="feature-desc">
+          El cuaderno que crece con vos. Agregá, sacá y reordenás hojas cuando quieras. Perfecto para estudiantes, profesionales y creativos.<br><br>
+          <strong>¿Qué lo hace especial?</strong> Portadas en vinilo resistente, discos en colores y hojas de gramaje premium. Todo a medida.
+        </p>
+        <a href="#" class="btn btn-green">Ver cuadernos con discos →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="catalog-banner">
+    <div class="catalog-text">
+      <p class="section-eyebrow">+100 diseños disponibles</p>
+      <h2 class="section-title">Catálogo de <em>Diseños</em></h2>
+      <p>Elegí el diseño de tapa que más te guste, o envianos el tuyo. También podés personalizar con tu nombre o frase favorita. 💌</p>
+    </div>
+    <a href="#" class="btn btn-catalog">Ver Catálogo →</a>
+  </div>
+
+  <section>
+    <div class="feature reverse">
+      <div class="feature-img"><div class="feature-img-bg feat-2">🗓</div></div>
+      <div class="feature-body feature-body-sage">
+        <span class="feature-badge badge-sage">Recargable</span>
+        <h2 class="feature-title sage-em">Repuestos <em>Inteligentes</em></h2>
+        <p class="feature-desc">
+          Mantené tu cuaderno siempre fresco. Hojas rayadas, cuadriculadas, en blanco o punteadas. Separadores, planners, agendas y tapas sueltas.<br><br>
+          <strong>Tu cuaderno nunca se termina.</strong> Solo se transforma.
+        </p>
+        <a href="#" class="btn btn-outline-sage">Ver repuestos →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="feature">
+      <div class="feature-img"><div class="feature-img-bg feat-3">📅</div></div>
+      <div class="feature-body feature-body-peach">
+        <span class="feature-badge badge-peach">Agendas 2026</span>
+        <h2 class="feature-title">Planificá tu <em>2026</em></h2>
+        <p class="feature-desc">
+          Semanales, diarias, universitarias y de 2 días. Todas con diseño cuidado, papel de calidad y posibilidad de personalizar la tapa.<br><br>
+          <strong>Pensadas para estudiantes y profesionales</strong> que quieren rendir más sin perder el estilo.
+        </p>
+        <a href="#" class="btn btn-peach">Ver Agendas 2026 →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="feature reverse">
+      <div class="feature-img"><div class="feature-img-bg feat-4">✏️</div></div>
+      <div class="feature-body feature-body-sky">
+        <span class="feature-badge badge-sky">A tu medida</span>
+        <h2 class="feature-title sky-em">Productos <em>Personalizados</em></h2>
+        <p class="feature-desc">
+          Cuadernos, libretas, planners y agendas con el diseño que vos elijas. Ideal para regalos, kits universitarios y eventos.<br><br>
+          Escribinos por WhatsApp o email y armamos algo único juntos. 💌
+        </p>
+        <a href="#" class="btn btn-outline">Consultar personalizado →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-row">
+    <div class="trust-item">
+      <div class="trust-icon-wrap ti-green">📦</div>
+      <div><div class="trust-label">Envíos a todo el país</div><div class="trust-sub">Andreani, Correo Argentino y puntos de retiro</div></div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon-wrap ti-peach">🤍</div>
+      <div><div class="trust-label">Hecho a mano</div><div class="trust-sub">Cada pieza artesanal, revisada con cuidado</div></div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon-wrap ti-sky">🔒</div>
+      <div><div class="trust-label">Compra segura</div><div class="trust-sub">Tus datos siempre protegidos</div></div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon-wrap ti-sage">📍</div>
+      <div><div class="trust-label">Retiro sin costo</div><div class="trust-sub">Flores · Lugano · Fac. Medicina UBA</div></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="footer-logo-circle">🦌</div>
+          Hue<em>mul</em>
+        </div>
+        <p class="footer-tagline">Cuadernos artesanales con sistema de discos, hechos a mano con amor en Argentina. Organizate con estilo.</p>
+        <div class="social-links">
+          <a href="https://instagram.com/huemul.cuadernos" class="social-link">📷</a>
+          <a href="#" class="social-link">🎵</a>
+          <a href="#" class="social-link">💬</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Productos</h4>
+        <ul>
+          <li><a href="#">Cuadernos con Discos</a></li>
+          <li><a href="#">Cuadernos con Espiral</a></li>
+          <li><a href="#">Libretas</a></li>
+          <li><a href="#">Agendas 2026</a></li>
+          <li><a href="#">Planners</a></li>
+          <li><a href="#">Repuestos</a></li>
+          <li><a href="#">Ofertas</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Información</h4>
+        <ul>
+          <li><a href="#">Cómo comprar</a></li>
+          <li><a href="#">Catálogo de diseños</a></li>
+          <li><a href="#">Personalizado</a></li>
+          <li><a href="#">Sobre Huemul</a></li>
+          <li><a href="#">Contacto</a></li>
+          <li><a href="#">Cancelación de compra</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Medios de pago</h4>
+        <div class="payment-grid">
+          <span class="payment-chip">Visa</span>
+          <span class="payment-chip">Mastercard</span>
+          <span class="payment-chip">Naranja</span>
+          <span class="payment-chip">Cabal</span>
+          <span class="payment-chip">Pago Fácil</span>
+          <span class="payment-chip">Rapipago</span>
+          <span class="payment-chip">MercadoPago</span>
+          <span class="payment-chip">Transferencia</span>
+        </div>
+        <div style="margin-top:24px;">
+          <h4>Contacto</h4>
+          <p style="font-size:13px;margin-top:8px;">huemul.cuadernos@gmail.com</p>
+          <p style="font-size:13px;margin-top:4px;">Buenos Aires, Argentina</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Huemul Cuadernos · Todos los derechos reservados</span>
+      <span><a href="#">Privacidad</a> · <a href="#">Términos</a></span>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/c/5491124050143" target="_blank" rel="noopener noreferrer" class="wa-fab" title="Hablanos por WhatsApp">💬</a>
+
+  <script>
+    // --- Lógica del Menú Pegajoso y Logo ---
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // --- Lógica del Carrusel ---
+    let current = 0;
+    const slides = document.getElementById('heroSlides');
+    const dots = document.querySelectorAll('.hero-dot');
+    let timer;
+
+    function goSlide(n) {
+      current = n;
+      slides.style.transform = `translateX(-${n * 100}%)`;
+      dots.forEach((d, i) => d.classList.toggle('active', i === n));
+      resetTimer(); 
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        goSlide((current + 1) % 3);
+      }, 5000);
+    }
+
+    resetTimer();
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const heroSection = document.querySelector('.hero');
+
+    heroSection.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+      clearInterval(timer); 
+    }, {passive: true});
+
+    heroSection.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+      resetTimer(); 
+    }, {passive: true});
+
+    function handleSwipe() {
+      const swipeThreshold = 50; 
+      if (touchStartX - touchEndX > swipeThreshold) {
+        goSlide((current + 1) % 3);
+      }
+      if (touchEndX - touchStartX > swipeThreshold) {
+        goSlide((current - 1 + 3) % 3);
+      }
+    }
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.cat-card, .feature-body, .trust-item').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(28px)';
+      el.style.transition = `opacity 0.55s ease ${i * 0.07}s, transform 0.55s ease ${i * 0.07}s`;
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
